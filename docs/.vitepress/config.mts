@@ -4,6 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Code snippets",
   description: "code snippets for competition",
+  cleanUrls: true,
   markdown: {
     math: true
   },
