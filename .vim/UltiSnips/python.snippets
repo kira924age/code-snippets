@@ -1,0 +1,104 @@
+snippet prime_factor
+def prime_factor(n):
+    res, x = {}, 2
+    while x * x <= n:
+        while n % x == 0:
+            res[x] = res.get(x, 0) + 1
+            n //= x
+        x += 1
+    if n != 1:
+        res[n] = 1
+
+    return res
+endsnippet
+
+snippet dijkstra
+def dijkstra(start_vertex, graph):
+    dist = [
+        0 if i == start_vertex else float("inf") for i in range(len(graph))
+    ]
+    que = []
+    heapq.heappush(que, (0, start_vertex))
+
+    while que:
+        cur_distance, cur_vertex = heapq.heappop(que)
+        if dist[cur_vertex] < cur_distance:
+            continue
+
+        for nxt_vertex, cost in graph[cur_vertex]:
+            if dist[cur_vertex] + cost < dist[nxt_vertex]:
+                dist[nxt_vertex] = dist[cur_vertex] + cost
+                heapq.heappush(que, (dist[nxt_vertex], nxt_vertex))
+
+    return dist
+endsnippet
+
+snippet traveling_salesman_problem
+def traveling_salesman_problem(start_vertex, graph):
+    n = len(graph)
+    dp = [[float("inf")] * n for _ in range(1 << n)]
+
+    for v in range(n):
+        if v == start_vertex:
+            continue
+        dp[1 << v][v] = graph[start_vertex][v]
+
+    for bit in range(1 << n):
+        for v in range(n):
+            if (bit >> v) & 1:
+                continue
+            for u in range(n):
+                if not ((bit >> u) & 1):
+                    continue
+                dp[bit | (1 << v)][v] = min(dp[bit | (1 << v)][v],
+                                            dp[bit][u] + graph[u][v])
+
+    return dp[(1 << n) - 1][start_vertex]
+endsnippet
+
+snippet shrink_coordinate
+def shrink_coordinate(a):
+    b = sorted(list(set(a)))
+    table = {v: k for k, v in enumerate(b)}
+
+    return list(map(lambda x: table[x], a))
+endsnippet
+
+snippet caesar_cipher
+def caesar_cipher(s, n):
+    d = {}
+    for c in (65, 97):
+        for i in range(26):
+            d[chr(i + c)] = chr((i + n) % 26 + c)
+
+    return "".join([d.get(c, c) for c in s])
+endsnippet
+
+snippet UnionFind
+class UnionFind:
+    def __init__(self, n):
+        self.parent_or_size = [-1 for _ in range(n)]
+        self.cnt = n
+
+    def unite(self, x, y):
+        x, y = self.find_root(x), self.find_root(y)
+        if x == y:
+            return
+        if -self.parent_or_size[x] < -self.parent_or_size[y]:
+            x, y = y, x
+        self.parent_or_size[x] += self.parent_or_size[y]
+        self.parent_or_size[y] = x
+        self.cnt -= 1
+
+    def is_same_root(self, x, y):
+        return self.find_root(x) == self.find_root(y)
+
+    def find_root(self, x):
+        if self.parent_or_size[x] < 0:
+            return x
+        self.parent_or_size[x] = self.find_root(self.parent_or_size[x])
+        return self.parent_or_size[x]
+
+    def size(self, x):
+        return -self.parent_or_size[self.find_root(x)]
+endsnippet

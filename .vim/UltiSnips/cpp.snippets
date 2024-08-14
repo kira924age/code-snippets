@@ -1,0 +1,164 @@
+snippet prime_factor
+std::map<long long, int> prime_factor(long long n) {
+  std::map<long long, int> res;
+  for (long long x = 2; x * x <= n; x++) {
+    while (n % x == 0) {
+      ++res[x];
+      n /= x;
+    }
+  }
+  if (n != 1) {
+    res[n] = 1;
+  }
+  return res;
+}
+endsnippet
+
+snippet dijkstra
+struct Edge {
+  int dst;
+  long long cost;
+  Edge() {}
+  Edge(int x, long long y) : dst(x), cost(y) {}
+};
+
+std::vector<long long> dijkstra(int sv, std::vector<std::vector<Edge>> &graph) {
+  const long long LINF = 1000000000000000018;
+
+  std::vector<long long> dist(graph.size(), LINF);
+  dist[sv] = 0;
+
+  typedef std::pair<long long, int> PLI;
+  std::priority_queue<PLI, std::vector<PLI>, std::greater<PLI>> que;
+
+  que.push(make_pair(0, sv));
+
+  while (!que.empty()) {
+    std::pair<long long, int> cur = que.top();
+    que.pop();
+
+    if (dist[cur.second] < cur.first) {
+      continue;
+    }
+
+    for (int i = 0; i < graph[cur.second].size(); i++) {
+      Edge edge = graph[cur.second][i];
+      if (dist[cur.second] + edge.cost < dist[edge.dst]) {
+        dist[edge.dst] = dist[cur.second] + edge.cost;
+        que.push(make_pair(dist[edge.dst], edge.dst));
+      }
+    }
+  }
+
+  return dist;
+}
+endsnippet
+
+snippet traveling_salesman_problem
+long long traveling_salesman_problem(int start_vertex, std::vector<std::vector<long long>> &G) {
+  const long long LINF = 1000000000000000018;
+
+  const int n = G[0].size();
+  std::vector<std::vector<long long>> dp((1 << n), std::vector<long long>(n, LINF));
+
+  for (int v = 0; v < n; v++) {
+    if (v == start_vertex) {
+      continue;
+    }
+    dp[1 << v][v] = G[start_vertex][v];
+  }
+
+  for (int S = 0; S < (1 << n); S++) {
+    for (int v = 0; v < n; v++) {
+      if ((S >> v) & 1) {
+        continue;
+      }
+      for (int u = 0; u < n; u++) {
+        if (!((S >> u) & 1)) {
+          continue;
+        }
+        dp[S | (1 << v)][v] = std::min(dp[S | (1 << v)][v], dp[S][u] + G[u][v]);
+      }
+    }
+  }
+
+  return dp[(1 << n) - 1][start_vertex];
+}
+endsnippet
+
+snippet shrink_coordinate
+template <class T> std::vector<int> shrink_coordinate(std::vector<T> &a) {
+  std::vector<T> b = a;
+
+  std::sort(b.begin(), b.end());
+  b.erase(std::unique(b.begin(), b.end()), b.end());
+
+  int N = a.size();
+
+  std::vector<int> res(N);
+  for (int i = 0; i < N; i++) {
+    res[i] = std::lower_bound(b.begin(), b.end(), a[i]) - b.begin();
+  }
+
+  return res;
+}
+endsnippet
+
+snippet caesar_cipher
+std::string caesar_cipher(std::string &s, int n) {
+  char table[0xff] = {0};
+
+  for (int t = 0; t < 0xff; t++) {
+    table[t] = t;
+  }
+
+  for (int i = 0; i < 26; i++) {
+    char upper_ch_src = 'A' + i;
+    char upper_ch_dst = 'A' + (i + n) % 26;
+    char lower_ch_src = 'a' + i;
+    char lower_ch_dst = 'a' + (i + n) % 26;
+
+    table[(int)upper_ch_src] = upper_ch_dst;
+    table[(int)lower_ch_src] = lower_ch_dst;
+  }
+
+  std::string res = "";
+  for (int i = 0; i < (int)s.size(); i++) {
+    char ch = s[i];
+    res += table[(int)ch];
+  }
+
+  return res;
+}
+endsnippet
+
+snippet UnionFind
+struct UnionFind {
+  std::vector<int> parent_or_size;
+  int cnt;
+
+  UnionFind(int n) : parent_or_size(n, -1), cnt(n) {}
+
+  void unite(int x, int y) {
+    x = find_root(x);
+    y = find_root(y);
+    if (x == y) {
+      return;
+    }
+    if (-parent_or_size[x] < -parent_or_size[y]) {
+      std::swap(x, y);
+    }
+    parent_or_size[x] += parent_or_size[y];
+    parent_or_size[y] = x;
+    cnt--;
+  }
+  bool is_same_root(int x, int y) { return find_root(x) == find_root(y); }
+  int find_root(int x) {
+    if (parent_or_size[x] < 0) {
+      return x;
+    }
+    return parent_or_size[x] = find_root(parent_or_size[x]);
+  }
+  int size(int x) { return -parent_or_size[find_root(x)]; }
+};
+endsnippet
